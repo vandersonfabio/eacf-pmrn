@@ -261,12 +261,12 @@ export default function EACFCalculator() {
       {/* Mobile Top Bar */}
       <div className="lg:hidden bg-[#1a2a44] text-white p-4 flex items-center justify-between shadow-md z-50">
         <div className="flex items-center gap-3">
-          <div className="relative size-8 rounded bg-white p-0.5">
+          <div className="relative size-10 rounded-lg overflow-hidden border border-white/20">
             <Image 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCUF1H9JXtwkyPLyvWfKpwC_mlyXN9w8upD8jiaAE-Z6mOIIinH01Uxq_0-OHTJcr9i2Enug5T0gftZ2881k_ff03Ylh5104Xx9nm_9HdddIIao9bZ0aKACz9iPLI99XxJuzyf_nJErtsv-8NX64kgivLJuesNdN9pVKR2ZvxAIapzdJbboLfYpvpuhy3pQPosDKNZP8zz0FNnj4WlW5_35UG-dFYwwPSUXsDXwjHshONP8wVeZpRIPUZ1d_DK4Gwtr004QC2pGg"
+              src="/pmrn-logo.png"
               alt="PM RN"
               fill
-              className="object-contain"
+              className="object-cover"
             />
           </div>
           <span className="font-bold text-sm">EACF-PMRN</span>
@@ -303,17 +303,18 @@ export default function EACFCalculator() {
             >
               <div className="p-6 flex items-center justify-between lg:justify-start gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="relative size-12 rounded-lg bg-white flex items-center justify-center p-1 shadow-inner overflow-hidden">
+                  {/* Container para a nova logo na pasta public */}
+                  <div className="relative size-16 rounded-xl overflow-hidden shadow-lg border border-white/10">
                     <Image 
-                      className="w-full h-full object-contain" 
+                      src="/pmrn-logo.png" 
                       alt="PM RN Logo" 
-                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCUF1H9JXtwkyPLyvWfKpwC_mlyXN9w8upD8jiaAE-Z6mOIIinH01Uxq_0-OHTJcr9i2Enug5T0gftZ2881k_ff03Ylh5104Xx9nm_9HdddIIao9bZ0aKACz9iPLI99XxJuzyf_nJErtsv-8NX64kgivLJuesNdN9pVKR2ZvxAIapzdJbboLfYpvpuhy3pQPosDKNZP8zz0FNnj4WlW5_35UG-dFYwwPSUXsDXwjHshONP8wVeZpRIPUZ1d_DK4Gwtr004QC2pGg"
                       fill
-                      referrerPolicy="no-referrer"
+                      className="object-cover"
+                      priority // Carrega a logo com prioridade
                     />
                   </div>
                   <div>
-                    <h1 className="text-lg font-bold leading-tight">EACF-PMRN</h1>
+                    <h1 className="text-lg font-bold leading-tight text-white">EACF-PMRN</h1>
                     <p className="text-xs text-slate-300">Simulador de Pontuação</p>
                   </div>
                 </div>
@@ -332,8 +333,7 @@ export default function EACFCalculator() {
 
               <div className="p-6 border-t border-white/10">
                 <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-4">Desenvolvimento</p>
-                <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10">
-                  <div className="size-8 rounded-full bg-[#135bec] flex items-center justify-center text-[10px] font-bold">SV</div>
+                <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10">                  
                   <div>
                     <p className="text-[11px] font-bold text-white">Sgt PM Vanderson</p>
                     <p className="text-[9px] text-slate-400">6º BPM - PMRN</p>
@@ -368,7 +368,7 @@ export default function EACFCalculator() {
               <div className="mb-8 lg:mb-10">
                 <h3 className="flex items-center gap-2 text-[#135bec] font-bold uppercase tracking-wider text-xs lg:text-sm mb-6">
                   <User size={18} />
-                  Dados Cadastrais
+                  Dados Biofísicos
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
                   <div>
@@ -545,7 +545,7 @@ export default function EACFCalculator() {
                       </div>
                       <div className="text-center sm:text-right">
                         <p className="text-white/70 text-xs font-bold uppercase tracking-widest mb-1">Média Geral</p>
-                        <h3 className="text-3xl lg:text-4xl font-black">{result.average.toFixed(1)}</h3>
+                        <h3 className="text-3xl lg:text-4xl font-black">{result.average.toFixed(2)}</h3>
                       </div>
                     </div>
 
