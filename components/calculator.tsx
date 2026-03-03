@@ -153,6 +153,7 @@ export default function EACFCalculator() {
     details: { name: string; score: number | string; points: number }[];
   } | null>(null);
 
+  const [activeTab, setActiveTab] = React.useState<'calculator' | 'criteria'>('calculator');
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const [isDesktop, setIsDesktop] = React.useState(false);
 
@@ -257,7 +258,7 @@ export default function EACFCalculator() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row h-screen bg-[#f6f6f8] text-slate-900 font-sans overflow-hidden">
+    <div className="flex flex-col lg:flex-row min-h-screen bg-[#f6f6f8] text-slate-900 font-sans">
       {/* Mobile Top Bar */}
       <div className="lg:hidden bg-[#1a2a44] text-white p-4 flex items-center justify-between shadow-md z-50">
         <div className="flex items-center gap-3">
@@ -292,7 +293,6 @@ export default function EACFCalculator() {
               className="lg:hidden fixed inset-0 bg-black/50 z-[60]"
             />
             <motion.aside 
-              initial={{ x: -300 }}
               animate={{ x: 0 }}
               exit={{ x: -300 }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
@@ -327,8 +327,24 @@ export default function EACFCalculator() {
               </div>
 
               <nav className="flex-1 px-4 py-6 space-y-2">
-                <SidebarItem icon={Calculator} label="Calculadora" active />
-                <SidebarItem icon={Gavel} label="Critérios de Avaliação" />
+                <SidebarItem 
+                  icon={Calculator} 
+                  label="Calculadora" 
+                  active={activeTab === 'calculator'} 
+                  onClick={() => {
+                    setActiveTab('calculator');
+                    setIsSidebarOpen(false);
+                  }}
+                />
+                <SidebarItem 
+                  icon={Gavel} 
+                  label="Critérios de Avaliação" 
+                  active={activeTab === 'criteria'}
+                  onClick={() => {
+                    setActiveTab('criteria');
+                    setIsSidebarOpen(false);
+                  }}
+                />
               </nav>
 
               <div className="p-6 border-t border-white/10">
@@ -346,266 +362,380 @@ export default function EACFCalculator() {
       </AnimatePresence>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-12">
-        <div className="max-w-4xl mx-auto">
-          <header className="mb-6 lg:mb-10">
-            <motion.h2 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-2xl lg:text-3xl font-black tracking-tight text-[#1a2a44]"
-            >
-              Simulador de Pontuação EACF - PMRN
-            </motion.h2>
-            <p className="text-slate-500 mt-2 text-base lg:text-lg">
-              Insira as métricas de desempenho para obter a pontuação oficial e classificação.
-            </p>
-          </header>
-
-          <div className="grid grid-cols-1 gap-6 lg:gap-8">
-            {/* Calculator Card */}
-            <section className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 lg:p-8">
-              {/* Dados Cadastrais */}
-              <div className="mb-8 lg:mb-10">
-                <h3 className="flex items-center gap-2 text-[#135bec] font-bold uppercase tracking-wider text-xs lg:text-sm mb-6">
-                  <User size={18} />
-                  Dados Biofísicos
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-3">Gênero</label>
-                    <div className="flex h-12 w-full items-center justify-center rounded-xl bg-slate-100 p-1">
-                      <button 
-                        onClick={() => setFormData(prev => ({ ...prev, gender: 'M' }))}
-                        className={cn(
-                          "flex h-full grow items-center justify-center rounded-lg px-4 text-sm font-semibold transition-all",
-                          formData.gender === 'M' ? "bg-white text-[#135bec] shadow-sm" : "text-slate-500 hover:text-slate-700"
-                        )}
-                      >
-                        Masculino
-                      </button>
-                      <button 
-                        onClick={() => setFormData(prev => ({ ...prev, gender: 'F' }))}
-                        className={cn(
-                          "flex h-full grow items-center justify-center rounded-lg px-4 text-sm font-semibold transition-all",
-                          formData.gender === 'F' ? "bg-white text-[#135bec] shadow-sm" : "text-slate-500 hover:text-slate-700"
-                        )}
-                      >
-                        Feminino
-                      </button>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-3">Faixa Etária</label>
-                    <select 
-                      value={formData.ageGroup}
-                      onChange={(e) => setFormData(prev => ({ ...prev, ageGroup: e.target.value as AgeGroup }))}
-                      className="w-full h-12 rounded-xl border-slate-200 bg-white text-slate-900 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all"
-                    >
-                      {AGE_GROUPS.map(group => (
-                        <option key={group} value={group}>{group} anos</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Choice for 35-49 - Moved here for better UX */}
-                  {isAge35to49 && (
-                    <div className="md:col-span-2 p-4 bg-blue-50 rounded-xl border border-blue-100">
-                      <p className="text-sm font-medium text-blue-800 mb-3">
-                        Opção de Exercício (35-49 anos):
-                      </p>
-                      <div className="flex flex-col sm:flex-row gap-4">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input 
-                            type="radio" 
-                            name="choice" 
-                            checked={formData.barOrPushUpChoice === 'bar'}
-                            onChange={() => setFormData(prev => ({ ...prev, barOrPushUpChoice: 'bar' }))}
-                            className="text-[#135bec] focus:ring-[#135bec]"
-                          />
-                          <span className="text-sm text-slate-700">Barra Fixa / Suspensão</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input 
-                            type="radio" 
-                            name="choice" 
-                            checked={formData.barOrPushUpChoice === 'pushUp'}
-                            onChange={() => setFormData(prev => ({ ...prev, barOrPushUpChoice: 'pushUp' }))}
-                            className="text-[#135bec] focus:ring-[#135bec]"
-                          />
-                          <span className="text-sm text-slate-700">Flexão de Braço no Solo</span>
-                        </label>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Métricas de Desempenho */}
-              <div>
-                <h3 className="flex items-center gap-2 text-[#135bec] font-bold uppercase tracking-wider text-xs lg:text-sm mb-6">
-                  <Activity size={18} />
-                  Métricas de Desempenho
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                  {/* Corrida 2.4km */}
-                  <InputGroup 
-                    label="Corrida 2.4km (Min:Seg)" 
-                    icon={Timer} 
-                    placeholder="00:00"
-                    value={formData.run2400}
-                    onChange={(val) => setFormData(prev => ({ ...prev, run2400: formatMMSS(val) }))}
-                  />
-
-                  {/* Shuttle Run - Hidden for 50+ */}
-                  {!isAge50Plus && (
-                    <InputGroup 
-                      label="Shuttle Run (Segundos)" 
-                      icon={Zap} 
-                      placeholder="00.00"
-                      value={formData.shuttleRun}
-                      onChange={(val) => setFormData(prev => ({ ...prev, shuttleRun: formatSSSS(val) }))}
-                    />
-                  )}
-
-                  {/* Barra Fixa / Suspensão */}
-                  {(!isAge50Plus && (!isAge35to49 || formData.barOrPushUpChoice === 'bar')) && (
-                    <InputGroup 
-                      label={isFemale ? "Suspensão na Barra (Segundos)" : "Barra Fixa (Repetições)"}
-                      icon={Dumbbell} 
-                      placeholder="0"
-                      type="number"
-                      value={formData.bar}
-                      onChange={(val) => setFormData(prev => ({ ...prev, bar: val }))}
-                      subtext={isFemale ? "* Suspensão para mulheres" : "* Repetições para homens"}
-                    />
-                  )}
-
-                  {/* Flexão de Braços */}
-                  {(isAge50Plus || (isAge35to49 && formData.barOrPushUpChoice === 'pushUp')) && (
-                    <InputGroup 
-                      label="Flexão de Braços (Repetições)" 
-                      icon={Activity} 
-                      placeholder="0"
-                      type="number"
-                      value={formData.pushUps}
-                      onChange={(val) => setFormData(prev => ({ ...prev, pushUps: val }))}
-                    />
-                  )}
-
-                  {/* Choice for 35-49 - Removed from here */}
-
-                  {/* Abdominais */}
-                  <div className="md:col-span-2">
-                    <InputGroup 
-                      label="Abdominais Tipo Remador (Repetições)" 
-                      icon={Activity} 
-                      placeholder="0"
-                      type="number"
-                      value={formData.sitUps}
-                      onChange={(val) => setFormData(prev => ({ ...prev, sitUps: val }))}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Action */}
-              <div className="mt-10 lg:mt-12 pt-8 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-2 text-slate-400 text-xs lg:text-sm">
-                  <Info size={16} />
-                  <span>Preencha todos os campos obrigatórios</span>
-                </div>
-                <button 
-                  onClick={handleCalculate}
-                  className="w-full md:w-auto flex items-center justify-center gap-2 px-10 py-4 bg-[#135bec] hover:bg-[#104ecb] text-white rounded-xl font-bold text-lg transition-all shadow-lg shadow-blue-200 active:scale-95"
-                >
-                  <Calculator size={20} />
-                  Calcular Resultado
-                </button>
-              </div>
-            </section>
-
-            {/* Results Section */}
-            <div id="result-section">
-              <AnimatePresence>
-                {result && (
-                  <motion.section 
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden"
+      <main className="flex-1 p-4 md:p-8 lg:p-12">
+        <div className="max-w-6xl mx-auto">
+          <AnimatePresence mode="wait">
+            {activeTab === 'calculator' ? (
+              <motion.div
+                key="calculator"
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+              >
+                <header className="mb-6 lg:mb-10">
+                  <motion.h2 
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-2xl lg:text-3xl font-black tracking-tight text-[#1a2a44]"
                   >
-                    <div className={cn(
-                      "p-6 lg:p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-4",
-                      result.status === 'Aprovado' ? "bg-emerald-600" : "bg-rose-600"
-                    )}>
-                      <div className="text-center sm:text-left">
-                        <p className="text-white/70 text-xs font-bold uppercase tracking-widest mb-1">Resultado Final</p>
-                        <h3 className="text-3xl lg:text-4xl font-black">{result.status}</h3>
-                      </div>
-                      <div className="text-center sm:text-right">
-                        <p className="text-white/70 text-xs font-bold uppercase tracking-widest mb-1">Média Geral</p>
-                        <h3 className="text-3xl lg:text-4xl font-black">{result.average.toFixed(2)}</h3>
-                      </div>
-                    </div>
+                    Simulador de Pontuação EACF - PMRN
+                  </motion.h2>
+                  <p className="text-slate-500 mt-2 text-base lg:text-lg">
+                    Insira as métricas de desempenho para obter a pontuação oficial e classificação.
+                  </p>
+                </header>
 
-                    <div className="p-6 lg:p-8">
-                      <h4 className="text-slate-900 font-bold mb-6 flex items-center gap-2">
-                        <CheckCircle2 className="text-emerald-500" size={20} />
-                        Detalhamento por Atividade
-                      </h4>
-                      <div className="space-y-4">
-                        {result.details.map((detail, idx) => (
-                          <div key={idx} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
-                            <div>
-                              <p className="text-sm font-bold text-slate-900">{detail.name}</p>
-                              <p className="text-xs text-slate-500">Desempenho: {detail.score}</p>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-lg font-black text-[#135bec]">{detail.points.toFixed(1)} pts</p>
-                              <div className="w-20 lg:w-24 h-1.5 bg-slate-200 rounded-full mt-1 overflow-hidden">
-                                <motion.div 
-                                  initial={{ width: 0 }}
-                                  animate={{ width: `${detail.points * 10}%` }}
-                                  className={cn(
-                                    "h-full rounded-full",
-                                    detail.points >= 6 ? "bg-emerald-500" : "bg-rose-500"
-                                  )}
+                <div className="grid grid-cols-1 gap-6 lg:gap-8">
+                  {/* Calculator Card */}
+                  <section className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 lg:p-8">
+                    {/* Dados Cadastrais */}
+                    <div className="mb-8 lg:mb-10">
+                      <h3 className="flex items-center gap-2 text-[#135bec] font-bold uppercase tracking-wider text-xs lg:text-sm mb-6">
+                        <User size={18} />
+                        Dados Biofísicos
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-700 mb-3">Gênero</label>
+                          <div className="flex h-12 w-full items-center justify-center rounded-xl bg-slate-100 p-1">
+                            <button 
+                              onClick={() => setFormData(prev => ({ ...prev, gender: 'M' }))}
+                              className={cn(
+                                "flex h-full grow items-center justify-center rounded-lg px-4 text-sm font-semibold transition-all",
+                                formData.gender === 'M' ? "bg-white text-[#135bec] shadow-sm" : "text-slate-500 hover:text-slate-700"
+                              )}
+                            >
+                              Masculino
+                            </button>
+                            <button 
+                              onClick={() => setFormData(prev => ({ ...prev, gender: 'F' }))}
+                              className={cn(
+                                "flex h-full grow items-center justify-center rounded-lg px-4 text-sm font-semibold transition-all",
+                                formData.gender === 'F' ? "bg-white text-[#135bec] shadow-sm" : "text-slate-500 hover:text-slate-700"
+                              )}
+                            >
+                              Feminino
+                            </button>
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-700 mb-3">Faixa Etária</label>
+                          <select 
+                            value={formData.ageGroup}
+                            onChange={(e) => setFormData(prev => ({ ...prev, ageGroup: e.target.value as AgeGroup }))}
+                            className="w-full h-12 rounded-xl border-slate-200 bg-white text-slate-900 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all"
+                          >
+                            {AGE_GROUPS.map(group => (
+                              <option key={group} value={group}>{group} anos</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Choice for 35-49 - Moved here for better UX */}
+                        {isAge35to49 && (
+                          <div className="md:col-span-2 p-4 bg-blue-50 rounded-xl border border-blue-100">
+                            <p className="text-sm font-medium text-blue-800 mb-3">
+                              Opção de Exercício (35-49 anos):
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-4">
+                              <label className="flex items-center gap-2 cursor-pointer">
+                                <input 
+                                  type="radio" 
+                                  name="choice" 
+                                  checked={formData.barOrPushUpChoice === 'bar'}
+                                  onChange={() => setFormData(prev => ({ ...prev, barOrPushUpChoice: 'bar' }))}
+                                  className="text-[#135bec] focus:ring-[#135bec]"
                                 />
-                              </div>
+                                <span className="text-sm text-slate-700">Barra Fixa / Suspensão</span>
+                              </label>
+                              <label className="flex items-center gap-2 cursor-pointer">
+                                <input 
+                                  type="radio" 
+                                  name="choice" 
+                                  checked={formData.barOrPushUpChoice === 'pushUp'}
+                                  onChange={() => setFormData(prev => ({ ...prev, barOrPushUpChoice: 'pushUp' }))}
+                                  className="text-[#135bec] focus:ring-[#135bec]"
+                                />
+                                <span className="text-sm text-slate-700">Flexão de Braço no Solo</span>
+                              </label>
                             </div>
                           </div>
-                        ))}
-                      </div>
-
-                      <div className="mt-8 p-4 bg-amber-50 rounded-xl border border-amber-100 flex gap-3">
-                        <AlertCircle className="text-amber-600 shrink-0" size={20} />
-                        <p className="text-sm text-amber-800">
-                          <strong>Atenção:</strong> Para aprovação, o candidato deve atingir uma média mínima de 6,0 pontos e não zerar nenhuma atividade.
-                        </p>
+                        )}
                       </div>
                     </div>
-                  </motion.section>
-                )}
-              </AnimatePresence>
-            </div>
 
-            {/* Disclaimer */}
-            <div className="p-5 lg:p-6 bg-slate-100 rounded-2xl border border-slate-200 flex flex-col gap-4">
-              <div className="flex gap-4">
-                <Info className="text-[#135bec] shrink-0" size={24} />
-                <p className="text-xs lg:text-sm text-slate-600 leading-relaxed">
-                  Esta calculadora utiliza as tabelas oficiais de pontuação da Polícia Militar do Rio Grande do Norte (PMRN). 
-                  Os resultados são estimativas baseadas nos critérios do último edital publicado. 
-                </p>
-              </div>
-              <div className="pt-4 border-t border-slate-200 flex justify-center">
-                <p className="text-[10px] lg:text-xs text-slate-400 font-medium">
-                  Desenvolvido pelo <span className="text-slate-600 font-bold">Sargento PM Vanderson - 6º BPM</span>
-                </p>
-              </div>
-            </div>
-          </div>
+                    {/* Métricas de Desempenho */}
+                    <div>
+                      <h3 className="flex items-center gap-2 text-[#135bec] font-bold uppercase tracking-wider text-xs lg:text-sm mb-6">
+                        <Activity size={18} />
+                        Métricas de Desempenho
+                      </h3>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                        {/* Corrida 2.4km */}
+                        <InputGroup 
+                          label="Corrida 2.4km (Min:Seg)" 
+                          icon={Timer} 
+                          placeholder="00:00"
+                          value={formData.run2400}
+                          onChange={(val) => setFormData(prev => ({ ...prev, run2400: formatMMSS(val) }))}
+                        />
+
+                        {/* Shuttle Run - Hidden for 50+ */}
+                        {!isAge50Plus && (
+                          <InputGroup 
+                            label="Shuttle Run (Segundos)" 
+                            icon={Zap} 
+                            placeholder="00.00"
+                            value={formData.shuttleRun}
+                            onChange={(val) => setFormData(prev => ({ ...prev, shuttleRun: formatSSSS(val) }))}
+                          />
+                        )}
+
+                        {/* Barra Fixa / Suspensão */}
+                        {(!isAge50Plus && (!isAge35to49 || formData.barOrPushUpChoice === 'bar')) && (
+                          <InputGroup 
+                            label={isFemale ? "Suspensão na Barra (Segundos)" : "Barra Fixa (Repetições)"}
+                            icon={Dumbbell} 
+                            placeholder="0"
+                            type="number"
+                            value={formData.bar}
+                            onChange={(val) => setFormData(prev => ({ ...prev, bar: val }))}
+                            subtext={isFemale ? "* Suspensão para mulheres" : "* Repetições para homens"}
+                          />
+                        )}
+
+                        {/* Flexão de Braços */}
+                        {(isAge50Plus || (isAge35to49 && formData.barOrPushUpChoice === 'pushUp')) && (
+                          <InputGroup 
+                            label="Flexão de Braços (Repetições)" 
+                            icon={Activity} 
+                            placeholder="0"
+                            type="number"
+                            value={formData.pushUps}
+                            onChange={(val) => setFormData(prev => ({ ...prev, pushUps: val }))}
+                          />
+                        )}
+
+                        {/* Abdominais */}
+                        <div className="md:col-span-2">
+                          <InputGroup 
+                            label="Abdominais Tipo Remador (Repetições)" 
+                            icon={Activity} 
+                            placeholder="0"
+                            type="number"
+                            value={formData.sitUps}
+                            onChange={(val) => setFormData(prev => ({ ...prev, sitUps: val }))}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action */}
+                    <div className="mt-10 lg:mt-12 pt-8 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
+                      <div className="flex items-center gap-2 text-slate-400 text-xs lg:text-sm">
+                        <Info size={16} />
+                        <span>Preencha todos os campos obrigatórios</span>
+                      </div>
+                      <button 
+                        onClick={handleCalculate}
+                        className="w-full md:w-auto flex items-center justify-center gap-2 px-10 py-4 bg-[#135bec] hover:bg-[#104ecb] text-white rounded-xl font-bold text-lg transition-all shadow-lg shadow-blue-200 active:scale-95"
+                      >
+                        <Calculator size={20} />
+                        Calcular Resultado
+                      </button>
+                    </div>
+                  </section>
+
+                  {/* Results Section */}
+                  <div id="result-section">
+                    <AnimatePresence>
+                      {result && (
+                        <motion.section 
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
+                          className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden"
+                        >
+                          <div className={cn(
+                            "p-6 lg:p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-4",
+                            result.status === 'Aprovado' ? "bg-emerald-600" : "bg-rose-600"
+                          )}>
+                            <div className="text-center sm:text-left">
+                              <p className="text-white/70 text-xs font-bold uppercase tracking-widest mb-1">Resultado Final</p>
+                              <h3 className="text-3xl lg:text-4xl font-black">{result.status}</h3>
+                            </div>
+                            <div className="text-center sm:text-right">
+                              <p className="text-white/70 text-xs font-bold uppercase tracking-widest mb-1">Média Geral</p>
+                              <h3 className="text-3xl lg:text-4xl font-black">{result.average.toFixed(2)}</h3>
+                            </div>
+                          </div>
+
+                          <div className="p-6 lg:p-8">
+                            <h4 className="text-slate-900 font-bold mb-6 flex items-center gap-2">
+                              <CheckCircle2 className="text-emerald-500" size={20} />
+                              Detalhamento por Atividade
+                            </h4>
+                            <div className="space-y-4">
+                              {result.details.map((detail, idx) => (
+                                <div key={idx} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
+                                  <div>
+                                    <p className="text-sm font-bold text-slate-900">{detail.name}</p>
+                                    <p className="text-xs text-slate-500">Desempenho: {detail.score}</p>
+                                  </div>
+                                  <div className="text-right">
+                                    <p className="text-lg font-black text-[#135bec]">{detail.points.toFixed(1)} pts</p>
+                                    <div className="w-20 lg:w-24 h-1.5 bg-slate-200 rounded-full mt-1 overflow-hidden">
+                                      <motion.div 
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${detail.points * 10}%` }}
+                                        className={cn(
+                                          "h-full rounded-full",
+                                          detail.points >= 6 ? "bg-emerald-500" : "bg-rose-500"
+                                        )}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+
+                            <div className="mt-8 p-4 bg-amber-50 rounded-xl border border-amber-100 flex gap-3">
+                              <AlertCircle className="text-amber-600 shrink-0" size={20} />
+                              <p className="text-sm text-amber-800">
+                                <strong>Atenção:</strong> Para aprovação, o candidato deve atingir uma média mínima de 6,0 pontos e não zerar nenhuma atividade.
+                              </p>
+                            </div>
+                          </div>
+                        </motion.section>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  {/* Disclaimer */}
+                  <div className="p-5 lg:p-6 bg-slate-100 rounded-2xl border border-slate-200 flex flex-col gap-4">
+                    <div className="flex gap-4">
+                      <Info className="text-[#135bec] shrink-0" size={24} />
+                      <p className="text-xs lg:text-sm text-slate-600 leading-relaxed">
+                        Esta calculadora utiliza as tabelas oficiais de pontuação da Polícia Militar do Rio Grande do Norte (PMRN). 
+                        Os resultados são estimativas baseadas nos critérios do último edital publicado. 
+                      </p>
+                    </div>
+                    <div className="pt-4 border-t border-slate-200 flex justify-center">
+                      <p className="text-[10px] lg:text-xs text-slate-400 font-medium">
+                        Desenvolvido pelo <span className="text-slate-600 font-bold">Sargento PM Vanderson - 6º BPM</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="criteria"
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+              >
+                <header className="mb-6 lg:mb-10">
+                  <h2 className="text-2xl lg:text-3xl font-black tracking-tight text-[#1a2a44]">
+                    Critérios de Avaliação (EACF)
+                  </h2>
+                  <p className="text-slate-500 mt-2 text-base lg:text-lg">
+                    Tabelas oficiais de pontuação por faixa etária e gênero.
+                  </p>
+                </header>
+
+                <div className="space-y-12 pb-12">
+                  {/* Male Table */}
+                  <section className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div className="p-6 bg-[#1a2a44] text-white">
+                      <h3 className="text-xl font-bold flex items-center gap-2">
+                        <User size={20} />
+                        Tabela Masculina
+                      </h3>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="bg-slate-50 border-b border-slate-200">
+                            <th className="p-4 text-xs font-bold uppercase text-slate-500 whitespace-nowrap">Corrida 2.4km</th>
+                            <th className="p-4 text-xs font-bold uppercase text-slate-500 whitespace-nowrap">Shuttle Run</th>
+                            <th className="p-4 text-xs font-bold uppercase text-slate-500 whitespace-nowrap">Barra</th>
+                            <th className="p-4 text-xs font-bold uppercase text-slate-500 whitespace-nowrap">Flexão</th>
+                            <th className="p-4 text-xs font-bold uppercase text-slate-500 whitespace-nowrap">Abdominais</th>
+                            {AGE_GROUPS.map(age => (
+                              <th key={age} className="p-4 text-xs font-bold uppercase text-slate-500 whitespace-nowrap">{age}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {EXERCISE_TABLES.M.run2400.map((_, idx) => (
+                            <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                              <td className="p-4 text-sm font-medium text-slate-700">{EXERCISE_TABLES.M.run2400[idx].toFixed(2).replace('.', ':')}</td>
+                              <td className="p-4 text-sm text-slate-600">{EXERCISE_TABLES.M.shuttleRun[idx].toFixed(1)}</td>
+                              <td className="p-4 text-sm text-slate-600">{EXERCISE_TABLES.M.bar[idx]}</td>
+                              <td className="p-4 text-sm text-slate-600">{EXERCISE_TABLES.M.pushUps[idx]}</td>
+                              <td className="p-4 text-sm text-slate-600">{EXERCISE_TABLES.M.sitUps[idx]}</td>
+                              {AGE_GROUPS.map(age => (
+                                <td key={age} className={cn(
+                                  "p-4 text-sm font-bold",
+                                  SCORING_TABLES[age][idx] >= 6 ? "text-emerald-600" : "text-rose-500"
+                                )}>
+                                  {SCORING_TABLES[age][idx].toFixed(1)}
+                                </td>
+                              ))}
+                            </tr>
+                          )).reverse()}
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+
+                  {/* Female Table */}
+                  <section className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div className="p-6 bg-[#135bec] text-white">
+                      <h3 className="text-xl font-bold flex items-center gap-2">
+                        <User size={20} />
+                        Tabela Feminina
+                      </h3>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="bg-slate-50 border-b border-slate-200">
+                            <th className="p-4 text-xs font-bold uppercase text-slate-500 whitespace-nowrap">Corrida 2.4km</th>
+                            <th className="p-4 text-xs font-bold uppercase text-slate-500 whitespace-nowrap">Shuttle Run</th>
+                            <th className="p-4 text-xs font-bold uppercase text-slate-500 whitespace-nowrap">Suspensão</th>
+                            <th className="p-4 text-xs font-bold uppercase text-slate-500 whitespace-nowrap">Flexão</th>
+                            <th className="p-4 text-xs font-bold uppercase text-slate-500 whitespace-nowrap">Abdominais</th>
+                            {AGE_GROUPS.map(age => (
+                              <th key={age} className="p-4 text-xs font-bold uppercase text-slate-500 whitespace-nowrap">{age}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {EXERCISE_TABLES.F.run2400.map((_, idx) => (
+                            <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                              <td className="p-4 text-sm font-medium text-slate-700">{EXERCISE_TABLES.F.run2400[idx].toFixed(2).replace('.', ':')}</td>
+                              <td className="p-4 text-sm text-slate-600">{EXERCISE_TABLES.F.shuttleRun[idx].toFixed(1)}</td>
+                              <td className="p-4 text-sm text-slate-600">{EXERCISE_TABLES.F.bar[idx]}s</td>
+                              <td className="p-4 text-sm text-slate-600">{EXERCISE_TABLES.F.pushUps[idx]}</td>
+                              <td className="p-4 text-sm text-slate-600">{EXERCISE_TABLES.F.sitUps[idx]}</td>
+                              {AGE_GROUPS.map(age => (
+                                <td key={age} className={cn(
+                                  "p-4 text-sm font-bold",
+                                  SCORING_TABLES[age][idx] >= 6 ? "text-emerald-600" : "text-rose-500"
+                                )}>
+                                  {SCORING_TABLES[age][idx].toFixed(1)}
+                                </td>
+                              ))}
+                            </tr>
+                          )).reverse()}
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </main>
     </div>
@@ -614,19 +744,19 @@ export default function EACFCalculator() {
 
 // --- Helper Components ---
 
-function SidebarItem({ icon: Icon, label, active = false }: { icon: any, label: string, active?: boolean }) {
+function SidebarItem({ icon: Icon, label, active = false, onClick }: { icon: any, label: string, active?: boolean, onClick?: () => void }) {
   return (
-    <a 
-      href="#" 
+    <button 
+      onClick={onClick}
       className={cn(
-        "flex items-center gap-3 px-4 py-3 rounded-xl transition-all group",
+        "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all group",
         active ? "bg-[#135bec] text-white shadow-md shadow-blue-900/20" : "text-slate-300 hover:bg-white/10"
       )}
     >
       <Icon size={20} className={cn(active ? "text-white" : "text-slate-400 group-hover:text-white")} />
       <span className="text-sm font-medium">{label}</span>
       {active && <ChevronRight size={16} className="ml-auto opacity-50" />}
-    </a>
+    </button>
   );
 }
 
