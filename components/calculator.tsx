@@ -8,6 +8,7 @@ import {
   Activity, 
   Info, 
   ChevronRight, 
+  ChevronDown,
   Timer, 
   Zap, 
   Dumbbell, 
@@ -15,6 +16,8 @@ import {
   AlertCircle,
   Gavel,
   Menu,
+  Coffee,
+  FileText,
   X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -245,7 +248,8 @@ export default function EACFCalculator() {
 
     const totalScore = details.reduce((acc, d) => acc + d.points, 0);
     const average = totalScore / details.length;
-    const status = average >= 6 ? 'Aprovado' : 'Reprovado';
+    const hasZero = details.some(d => d.points === 0);
+    const status = (average >= 6 && !hasZero) ? 'Aprovado' : 'Reprovado';
 
     setResult({ totalScore, average, status, details });
     
@@ -303,24 +307,23 @@ export default function EACFCalculator() {
             >
               <div className="p-6 flex items-center justify-between lg:justify-start gap-4">
                 <div className="flex items-center gap-4">
-                  {/* Container para a nova logo na pasta public */}
-                  <div className="relative size-16 rounded-xl overflow-hidden shadow-lg border border-white/10">
+                  <div className="relative size-14 rounded-2xl overflow-hidden shadow-2xl border-2 border-white/20">
                     <Image 
                       src="/pmrn-logo.png" 
                       alt="PM RN Logo" 
                       fill
-                      className="object-cover"
-                      priority // Carrega a logo com prioridade
+                      className="object-contain p-1 bg-white"
+                      priority
                     />
                   </div>
                   <div>
-                    <h1 className="text-lg font-bold leading-tight text-white">EACF-PMRN</h1>
-                    <p className="text-xs text-slate-300">Simulador de Pontuação</p>
+                    <h1 className="text-xl font-black leading-none text-white tracking-tight">EACF<span className="text-blue-400">.</span>PMRN</h1>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Simulador Oficial</p>
                   </div>
                 </div>
                 <button 
                   onClick={() => setIsSidebarOpen(false)}
-                  className="lg:hidden p-2 hover:bg-white/10 rounded-lg"
+                  className="lg:hidden p-2 hover:bg-white/10 rounded-xl transition-colors"
                 >
                   <X size={20} />
                 </button>
@@ -371,261 +374,338 @@ export default function EACFCalculator() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
               >
-                <header className="mb-6 lg:mb-10">
-                  <motion.h2 
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-2xl lg:text-3xl font-black tracking-tight text-[#1a2a44]"
-                  >
-                    Simulador de Pontuação EACF - PMRN
-                  </motion.h2>
-                  <p className="text-slate-500 mt-2 text-base lg:text-lg">
-                    Insira as métricas de desempenho para obter a pontuação oficial e classificação.
+                <header className="mb-8 lg:mb-14 relative">
+                  <div className="absolute -left-12 top-1/2 -translate-y-1/2 w-1 h-12 bg-blue-600 rounded-full hidden lg:block" />
+                  <div className="flex items-center gap-2 text-[#135bec] text-xs font-black uppercase tracking-[0.2em] mb-3">
+                    <Calculator size={14} className="animate-pulse" />
+                    <span>Sistema de Avaliação Física</span>
+                  </div>
+                  <h2 className="text-4xl lg:text-5xl font-black tracking-tighter text-[#1a2a44] leading-[1.1]">
+                    Simulador de <br className="hidden lg:block" />
+                    Pontuação <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#135bec] to-[#1a2a44]">EACF</span>
+                  </h2>
+                  <p className="text-slate-500 mt-5 text-base lg:text-xl max-w-2xl font-medium leading-relaxed">
+                    Calcule seu desempenho físico com base nos critérios oficiais da PMRN. 
+                    Resultados instantâneos, detalhados e em conformidade com o edital.
                   </p>
                 </header>
 
-                <div className="grid grid-cols-1 gap-6 lg:gap-8">
-                  {/* Calculator Card */}
-                  <section className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 lg:p-8">
-                    {/* Dados Cadastrais */}
-                    <div className="mb-8 lg:mb-10">
-                      <h3 className="flex items-center gap-2 text-[#135bec] font-bold uppercase tracking-wider text-xs lg:text-sm mb-6">
-                        <User size={18} />
-                        Dados Biofísicos
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-                        <div>
-                          <label className="block text-sm font-semibold text-slate-700 mb-3">Gênero</label>
-                          <div className="flex h-12 w-full items-center justify-center rounded-xl bg-slate-100 p-1">
-                            <button 
-                              onClick={() => setFormData(prev => ({ ...prev, gender: 'M' }))}
-                              className={cn(
-                                "flex h-full grow items-center justify-center rounded-lg px-4 text-sm font-semibold transition-all",
-                                formData.gender === 'M' ? "bg-white text-[#135bec] shadow-sm" : "text-slate-500 hover:text-slate-700"
-                              )}
-                            >
-                              Masculino
-                            </button>
-                            <button 
-                              onClick={() => setFormData(prev => ({ ...prev, gender: 'F' }))}
-                              className={cn(
-                                "flex h-full grow items-center justify-center rounded-lg px-4 text-sm font-semibold transition-all",
-                                formData.gender === 'F' ? "bg-white text-[#135bec] shadow-sm" : "text-slate-500 hover:text-slate-700"
-                              )}
-                            >
-                              Feminino
-                            </button>
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-semibold text-slate-700 mb-3">Faixa Etária</label>
-                          <select 
-                            value={formData.ageGroup}
-                            onChange={(e) => setFormData(prev => ({ ...prev, ageGroup: e.target.value as AgeGroup }))}
-                            className="w-full h-12 rounded-xl border-slate-200 bg-white text-slate-900 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all"
-                          >
-                            {AGE_GROUPS.map(group => (
-                              <option key={group} value={group}>{group} anos</option>
-                            ))}
-                          </select>
-                        </div>
-
-                        {/* Choice for 35-49 - Moved here for better UX */}
-                        {isAge35to49 && (
-                          <div className="md:col-span-2 p-4 bg-blue-50 rounded-xl border border-blue-100">
-                            <p className="text-sm font-medium text-blue-800 mb-3">
-                              Opção de Exercício (35-49 anos):
-                            </p>
-                            <div className="flex flex-col sm:flex-row gap-4">
-                              <label className="flex items-center gap-2 cursor-pointer">
-                                <input 
-                                  type="radio" 
-                                  name="choice" 
-                                  checked={formData.barOrPushUpChoice === 'bar'}
-                                  onChange={() => setFormData(prev => ({ ...prev, barOrPushUpChoice: 'bar' }))}
-                                  className="text-[#135bec] focus:ring-[#135bec]"
-                                />
-                                <span className="text-sm text-slate-700">Barra Fixa / Suspensão</span>
-                              </label>
-                              <label className="flex items-center gap-2 cursor-pointer">
-                                <input 
-                                  type="radio" 
-                                  name="choice" 
-                                  checked={formData.barOrPushUpChoice === 'pushUp'}
-                                  onChange={() => setFormData(prev => ({ ...prev, barOrPushUpChoice: 'pushUp' }))}
-                                  className="text-[#135bec] focus:ring-[#135bec]"
-                                />
-                                <span className="text-sm text-slate-700">Flexão de Braço no Solo</span>
-                              </label>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Métricas de Desempenho */}
-                    <div>
-                      <h3 className="flex items-center gap-2 text-[#135bec] font-bold uppercase tracking-wider text-xs lg:text-sm mb-6">
-                        <Activity size={18} />
-                        Métricas de Desempenho
-                      </h3>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  {/* Calculator Form */}
+                  <div className="lg:col-span-2 space-y-8">
+                    <section className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden relative group">
+                      <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full -mr-32 -mt-32 transition-transform duration-700 group-hover:scale-110" />
                       
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                        {/* Corrida 2.4km */}
-                        <InputGroup 
-                          label="Corrida 2.4km (Min:Seg)" 
-                          icon={Timer} 
-                          placeholder="00:00"
-                          value={formData.run2400}
-                          onChange={(val) => setFormData(prev => ({ ...prev, run2400: formatMMSS(val) }))}
-                        />
-
-                        {/* Shuttle Run - Hidden for 50+ */}
-                        {!isAge50Plus && (
-                          <InputGroup 
-                            label="Shuttle Run (Segundos)" 
-                            icon={Zap} 
-                            placeholder="00.00"
-                            value={formData.shuttleRun}
-                            onChange={(val) => setFormData(prev => ({ ...prev, shuttleRun: formatSSSS(val) }))}
-                          />
-                        )}
-
-                        {/* Barra Fixa / Suspensão */}
-                        {(!isAge50Plus && (!isAge35to49 || formData.barOrPushUpChoice === 'bar')) && (
-                          <InputGroup 
-                            label={isFemale ? "Suspensão na Barra (Segundos)" : "Barra Fixa (Repetições)"}
-                            icon={Dumbbell} 
-                            placeholder="0"
-                            type="number"
-                            value={formData.bar}
-                            onChange={(val) => setFormData(prev => ({ ...prev, bar: val }))}
-                            subtext={isFemale ? "* Suspensão para mulheres" : "* Repetições para homens"}
-                          />
-                        )}
-
-                        {/* Flexão de Braços */}
-                        {(isAge50Plus || (isAge35to49 && formData.barOrPushUpChoice === 'pushUp')) && (
-                          <InputGroup 
-                            label="Flexão de Braços (Repetições)" 
-                            icon={Activity} 
-                            placeholder="0"
-                            type="number"
-                            value={formData.pushUps}
-                            onChange={(val) => setFormData(prev => ({ ...prev, pushUps: val }))}
-                          />
-                        )}
-
-                        {/* Abdominais */}
-                        <div className="md:col-span-2">
-                          <InputGroup 
-                            label="Abdominais Tipo Remador (Repetições)" 
-                            icon={Activity} 
-                            placeholder="0"
-                            type="number"
-                            value={formData.sitUps}
-                            onChange={(val) => setFormData(prev => ({ ...prev, sitUps: val }))}
-                          />
+                      <div className="p-8 lg:p-10 relative">
+                        <div className="flex items-center gap-4 mb-10">
+                          <div className="size-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-blue-200">
+                            <User size={24} />
+                          </div>
+                          <div>
+                            <h3 className="text-2xl font-black text-[#1a2a44] tracking-tight">Perfil do Candidato</h3>
+                            <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Identificação e Critérios</p>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-
-                    {/* Action */}
-                    <div className="mt-10 lg:mt-12 pt-8 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
-                      <div className="flex items-center gap-2 text-slate-400 text-xs lg:text-sm">
-                        <Info size={16} />
-                        <span>Preencha todos os campos obrigatórios</span>
-                      </div>
-                      <button 
-                        onClick={handleCalculate}
-                        className="w-full md:w-auto flex items-center justify-center gap-2 px-10 py-4 bg-[#135bec] hover:bg-[#104ecb] text-white rounded-xl font-bold text-lg transition-all shadow-lg shadow-blue-200 active:scale-95"
-                      >
-                        <Calculator size={20} />
-                        Calcular Resultado
-                      </button>
-                    </div>
-                  </section>
-
-                  {/* Results Section */}
-                  <div id="result-section">
-                    <AnimatePresence>
-                      {result && (
-                        <motion.section 
-                          initial={{ opacity: 0, scale: 0.95 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.95 }}
-                          className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden"
-                        >
-                          <div className={cn(
-                            "p-6 lg:p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-4",
-                            result.status === 'Aprovado' ? "bg-emerald-600" : "bg-rose-600"
-                          )}>
-                            <div className="text-center sm:text-left">
-                              <p className="text-white/70 text-xs font-bold uppercase tracking-widest mb-1">Resultado Final</p>
-                              <h3 className="text-3xl lg:text-4xl font-black">{result.status}</h3>
-                            </div>
-                            <div className="text-center sm:text-right">
-                              <p className="text-white/70 text-xs font-bold uppercase tracking-widest mb-1">Média Geral</p>
-                              <h3 className="text-3xl lg:text-4xl font-black">{result.average.toFixed(2)}</h3>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                          <div className="space-y-3">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Gênero</label>
+                            <div className="flex p-1.5 bg-slate-100 rounded-2xl gap-1.5">
+                              {['M', 'F'].map((g) => (
+                                <button
+                                  key={g}
+                                  onClick={() => setFormData(prev => ({ ...prev, gender: g as 'M' | 'F' }))}
+                                  className={cn(
+                                    "flex-1 py-3.5 rounded-xl text-xs font-black transition-all duration-300",
+                                    formData.gender === g 
+                                      ? "bg-white text-[#135bec] shadow-sm scale-[1.02]" 
+                                      : "text-slate-500 hover:text-slate-700"
+                                  )}
+                                >
+                                  {g === 'M' ? 'MASCULINO' : 'FEMININO'}
+                                </button>
+                              ))}
                             </div>
                           </div>
 
-                          <div className="p-6 lg:p-8">
-                            <h4 className="text-slate-900 font-bold mb-6 flex items-center gap-2">
-                              <CheckCircle2 className="text-emerald-500" size={20} />
-                              Detalhamento por Atividade
-                            </h4>
-                            <div className="space-y-4">
-                              {result.details.map((detail, idx) => (
-                                <div key={idx} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                  <div>
-                                    <p className="text-sm font-bold text-slate-900">{detail.name}</p>
-                                    <p className="text-xs text-slate-500">Desempenho: {detail.score}</p>
-                                  </div>
-                                  <div className="text-right">
-                                    <p className="text-lg font-black text-[#135bec]">{detail.points.toFixed(1)} pts</p>
-                                    <div className="w-20 lg:w-24 h-1.5 bg-slate-200 rounded-full mt-1 overflow-hidden">
+                          <div className="space-y-3">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Faixa Etária</label>
+                            <div className="relative">
+                              <select 
+                                value={formData.ageGroup}
+                                onChange={(e) => setFormData(prev => ({ ...prev, ageGroup: e.target.value as AgeGroup }))}
+                                className="w-full p-4 bg-slate-100 rounded-2xl text-sm font-black text-slate-700 border-none focus:ring-2 focus:ring-blue-500 transition-all appearance-none cursor-pointer"
+                              >
+                                {AGE_GROUPS.map(group => (
+                                  <option key={group} value={group}>{group} ANOS</option>
+                                ))}
+                              </select>
+                              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                <ChevronDown size={16} />
+                              </div>
+                            </div>
+                          </div>
+
+                          {isAge35to49 && (
+                            <motion.div 
+                              initial={{ opacity: 0, scale: 0.95 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              className="md:col-span-2 p-6 bg-blue-50/50 rounded-3xl border border-blue-100 flex flex-col md:flex-row md:items-center justify-between gap-6"
+                            >
+                              <div className="flex items-center gap-4">
+                                <div className="size-10 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">
+                                  <Activity size={20} />
+                                </div>
+                                <div>
+                                  <p className="text-sm font-black text-blue-900 tracking-tight">Opção de Exercício</p>
+                                  <p className="text-xs text-blue-700/60 font-medium">Escolha entre Barra ou Flexão para sua idade.</p>
+                                </div>
+                              </div>
+                              <div className="flex bg-white p-1.5 rounded-2xl shadow-sm border border-blue-100">
+                                <button 
+                                  onClick={() => setFormData(prev => ({ ...prev, barOrPushUpChoice: 'bar' }))}
+                                  className={cn(
+                                    "px-6 py-2.5 rounded-xl text-[10px] font-black transition-all duration-300",
+                                    formData.barOrPushUpChoice === 'bar' ? "bg-blue-600 text-white shadow-lg shadow-blue-200" : "text-slate-400 hover:text-slate-600"
+                                  )}
+                                >
+                                  BARRA FIXA
+                                </button>
+                                <button 
+                                  onClick={() => setFormData(prev => ({ ...prev, barOrPushUpChoice: 'pushUp' }))}
+                                  className={cn(
+                                    "px-6 py-2.5 rounded-xl text-[10px] font-black transition-all duration-300",
+                                    formData.barOrPushUpChoice === 'pushUp' ? "bg-blue-600 text-white shadow-lg shadow-blue-200" : "text-slate-400 hover:text-slate-600"
+                                  )}
+                                >
+                                  FLEXÃO
+                                </button>
+                              </div>
+                            </motion.div>
+                          )}
+                        </div>
+
+                        <div className="mt-14 pt-10 border-t border-slate-100">
+                          <div className="flex items-center gap-4 mb-10">
+                            <div className="size-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-emerald-100">
+                              <Activity size={24} />
+                            </div>
+                            <div>
+                              <h3 className="text-2xl font-black text-[#1a2a44] tracking-tight">Desempenho Físico</h3>
+                              <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Insira seus resultados</p>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <InputGroup 
+                              label="Corrida 2.4km" 
+                              icon={Timer} 
+                              placeholder="MM:SS"
+                              value={formData.run2400}
+                              onChange={(val) => setFormData(prev => ({ ...prev, run2400: formatMMSS(val) }))}
+                              subtext="Ex: 12:00"
+                            />
+
+                            {!isAge50Plus && (
+                              <InputGroup 
+                                label="Shuttle Run" 
+                                icon={Zap} 
+                                placeholder="00.00"
+                                value={formData.shuttleRun}
+                                onChange={(val) => setFormData(prev => ({ ...prev, shuttleRun: formatSSSS(val) }))}
+                                subtext="Tempo em segundos"
+                              />
+                            )}
+
+                            {(!isAge50Plus && (!isAge35to49 || formData.barOrPushUpChoice === 'bar')) && (
+                              <InputGroup 
+                                label={isFemale ? "Suspensão Barra" : "Barra Fixa"}
+                                icon={Dumbbell} 
+                                placeholder="0"
+                                type="number"
+                                value={formData.bar}
+                                onChange={(val) => setFormData(prev => ({ ...prev, bar: val }))}
+                                subtext={isFemale ? "Tempo em segundos" : "Número de repetições"}
+                              />
+                            )}
+
+                            {(isAge50Plus || (isAge35to49 && formData.barOrPushUpChoice === 'pushUp')) && (
+                              <InputGroup 
+                                label="Flexão de Braços" 
+                                icon={Activity} 
+                                placeholder="0"
+                                type="number"
+                                value={formData.pushUps}
+                                onChange={(val) => setFormData(prev => ({ ...prev, pushUps: val }))}
+                                subtext="Repetições totais"
+                              />
+                            )}
+
+                            <div className="md:col-span-2">
+                              <InputGroup 
+                                label="Abdominais Remador" 
+                                icon={Activity} 
+                                placeholder="0"
+                                type="number"
+                                value={formData.sitUps}
+                                onChange={(val) => setFormData(prev => ({ ...prev, sitUps: val }))}
+                                subtext="Repetições em 1 minuto"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-8 lg:p-10 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-6">
+                        <div className="flex items-center gap-3">
+                          <div className="size-10 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">
+                            <Info size={20} />
+                          </div>
+                          <p className="text-xs text-slate-500 font-medium max-w-[200px] leading-relaxed">
+                            Certifique-se de que todos os dados estão corretos antes de calcular.
+                          </p>
+                        </div>
+                        <button 
+                          onClick={handleCalculate}
+                          className="group relative w-full sm:w-auto flex items-center justify-center gap-4 px-12 py-6 bg-gradient-to-r from-[#135bec] to-[#1a2a44] text-white rounded-[2rem] font-black text-xl tracking-tighter uppercase overflow-hidden transition-all duration-500 hover:scale-[1.05] hover:shadow-2xl hover:shadow-blue-900/40 active:scale-95"
+                        >
+                          <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                          <div className="relative flex items-center justify-center gap-3">
+                            <Zap className="text-yellow-400 group-hover:animate-pulse" size={24} />
+                            <span>CALCULAR</span>
+                          </div>
+                        </button>
+                      </div>
+                    </section>
+                  </div>
+
+                  {/* Results & Info Sidebar */}
+                  <div className="space-y-8">
+                    {/* Results Section */}
+                    <div id="result-section">
+                      <AnimatePresence mode="wait">
+                        {result ? (
+                          <motion.div 
+                            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="bg-white rounded-[2.5rem] shadow-2xl shadow-blue-900/10 border border-slate-100 overflow-hidden relative"
+                          >
+                            <div className={cn(
+                              "p-10 text-white text-center relative overflow-hidden",
+                              result.status === 'Aprovado' ? "bg-gradient-to-br from-emerald-500 to-teal-600" : "bg-gradient-to-br from-rose-500 to-pink-600"
+                            )}>
+                              <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+                                <div className="absolute top-4 left-4 size-20 rounded-full border-4 border-white" />
+                                <div className="absolute bottom-4 right-4 size-32 rounded-full border-8 border-white" />
+                              </div>
+                              
+                              <div className="inline-flex items-center justify-center size-20 bg-white/20 backdrop-blur-md rounded-3xl mb-6 border border-white/30 shadow-inner">
+                                {result.status === 'Aprovado' ? <CheckCircle2 className="text-white" size={40} /> : <AlertCircle className="text-white" size={40} />}
+                              </div>
+                              
+                              <p className="text-white/70 text-[10px] font-black uppercase tracking-[0.3em] mb-2">Status Final</p>
+                              <h3 className="text-5xl font-black tracking-tighter uppercase">{result.status}</h3>
+                              
+                              <div className="mt-8 pt-8 border-t border-white/20 flex justify-center">
+                                <div className="text-center">
+                                  <p className="text-white/60 text-[10px] uppercase font-black tracking-widest mb-1">Resultado Geral</p>
+                                  <p className="text-4xl font-black">{result.average.toFixed(2)}</p>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="p-8">
+                              <h4 className="text-[#1a2a44] font-black text-sm mb-6 flex items-center gap-2 uppercase tracking-wider">
+                                <div className="size-1.5 bg-blue-600 rounded-full" />
+                                Detalhamento por Item
+                              </h4>
+                              <div className="space-y-4">
+                                {result.details.map((detail, idx) => (
+                                  <div key={idx} className="space-y-2 group">
+                                    <div className="flex items-center justify-between px-1">
+                                      <span className="text-xs font-bold text-slate-600 group-hover:text-slate-900 transition-colors">{detail.name}</span>
+                                      <span className={cn(
+                                        "text-xs font-black",
+                                        detail.points >= 6 ? "text-emerald-600" : "text-rose-500"
+                                      )}>
+                                        {detail.points.toFixed(1)} pts
+                                      </span>
+                                    </div>
+                                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-50">
                                       <motion.div 
                                         initial={{ width: 0 }}
-                                        animate={{ width: `${detail.points * 10}%` }}
+                                        animate={{ width: `${(detail.points / 10) * 100}%` }}
                                         className={cn(
-                                          "h-full rounded-full",
-                                          detail.points >= 6 ? "bg-emerald-500" : "bg-rose-500"
+                                          "h-full rounded-full shadow-sm",
+                                          detail.points >= 6 ? "bg-gradient-to-r from-emerald-400 to-emerald-600" : "bg-gradient-to-r from-rose-400 to-rose-600"
                                         )}
                                       />
                                     </div>
                                   </div>
+                                ))}
+                              </div>
+
+                              <div className="mt-8 p-5 bg-blue-50/50 rounded-3xl border border-blue-100 flex gap-4">
+                                <div className="size-8 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 shrink-0">
+                                  <Info size={16} />
                                 </div>
-                              ))}
+                                <p className="text-[10px] text-blue-800 font-medium leading-relaxed">
+                                  <strong>Critério de Aprovação:</strong> Média mínima de 6.0 e nenhuma nota individual zerada.
+                                </p>
+                              </div>
                             </div>
-
-                            <div className="mt-8 p-4 bg-amber-50 rounded-xl border border-amber-100 flex gap-3">
-                              <AlertCircle className="text-amber-600 shrink-0" size={20} />
-                              <p className="text-sm text-amber-800">
-                                <strong>Atenção:</strong> Para aprovação, o candidato deve atingir uma média mínima de 6,0 pontos e não zerar nenhuma atividade.
-                              </p>
+                          </motion.div>
+                        ) : (
+                          <div className="bg-slate-50 rounded-[2.5rem] border-2 border-dashed border-slate-200 p-12 text-center flex flex-col items-center justify-center min-h-[400px]">
+                            <div className="size-20 bg-white rounded-3xl flex items-center justify-center text-slate-300 mb-6 shadow-sm">
+                              <Calculator size={40} />
                             </div>
+                            <h3 className="text-slate-900 font-black text-lg mb-2 tracking-tight">Aguardando Dados</h3>
+                            <p className="text-slate-400 text-sm font-medium leading-relaxed max-w-[200px] mx-auto">
+                              Preencha as métricas ao lado para visualizar seu resultado detalhado.
+                            </p>
                           </div>
-                        </motion.section>
-                      )}
-                    </AnimatePresence>
-                  </div>
-
-                  {/* Disclaimer */}
-                  <div className="p-5 lg:p-6 bg-slate-100 rounded-2xl border border-slate-200 flex flex-col gap-4">
-                    <div className="flex gap-4">
-                      <Info className="text-[#135bec] shrink-0" size={24} />
-                      <p className="text-xs lg:text-sm text-slate-600 leading-relaxed">
-                        Esta calculadora utiliza as tabelas oficiais de pontuação da Polícia Militar do Rio Grande do Norte (PMRN). 
-                        Os resultados são estimativas baseadas nos critérios do último edital publicado. 
-                      </p>
+                        )}
+                      </AnimatePresence>
                     </div>
-                    <div className="pt-4 border-t border-slate-200 flex justify-center">
-                      <p className="text-[10px] lg:text-xs text-slate-400 font-medium">
-                        Desenvolvido pelo <span className="text-slate-600 font-bold">Sargento PM Vanderson - 6º BPM</span>
-                      </p>
+
+                    {/* Quick Info Card */}
+                    <div className="bg-[#1a2a44] p-8 rounded-[2.5rem] text-white relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full -mr-16 -mt-16 transition-transform duration-700 group-hover:scale-150" />
+                      <div className="relative">
+                        <div className="flex items-center gap-3 mb-6">
+                          <Info size={20} className="text-blue-400" />
+                          <h4 className="text-lg font-black tracking-tight">Informações Úteis</h4>
+                        </div>
+                        <ul className="space-y-4">
+                          {[
+                            { text: "Média mínima de 6.0 para aprovação.", icon: CheckCircle2 },
+                            { text: "Nenhum teste pode ter nota zero.", icon: AlertCircle },
+                            { text: "Critérios baseados no último edital PMRN.", icon: FileText }
+                          ].map((item, i) => (
+                            <li key={i} className="flex items-start gap-3 text-sm text-slate-300 leading-relaxed group/item">
+                              <item.icon size={16} className="mt-0.5 text-blue-500 shrink-0 group-hover/item:scale-110 transition-transform" />
+                              <span className="group-hover/item:text-white transition-colors">{item.text}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
                   </div>
                 </div>
+
+                {/* Footer / Disclaimer */}
+                <footer className="mt-20 pt-10 border-t border-slate-100">
+                  <div className="flex flex-col items-center justify-center gap-6">
+                    <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-full border border-slate-100">
+                      <div className="size-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                        Desenvolvido por <span className="text-[#1a2a44]">Sgt PM Vanderson - 6º BPM</span>
+                      </p>
+                    </div>
+                  </div>
+                </footer>
               </motion.div>
             ) : (
               <motion.div
@@ -749,13 +829,20 @@ function SidebarItem({ icon: Icon, label, active = false, onClick }: { icon: any
     <button 
       onClick={onClick}
       className={cn(
-        "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all group",
-        active ? "bg-[#135bec] text-white shadow-md shadow-blue-900/20" : "text-slate-300 hover:bg-white/10"
+        "w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-300 group relative overflow-hidden",
+        active 
+          ? "bg-gradient-to-r from-[#135bec] to-[#1a2a44] text-white shadow-lg shadow-blue-900/40" 
+          : "text-slate-400 hover:bg-white/5 hover:text-white"
       )}
     >
-      <Icon size={20} className={cn(active ? "text-white" : "text-slate-400 group-hover:text-white")} />
-      <span className="text-sm font-medium">{label}</span>
-      {active && <ChevronRight size={16} className="ml-auto opacity-50" />}
+      <Icon size={20} className={cn("transition-transform duration-300 group-hover:scale-110", active ? "text-white" : "text-slate-500 group-hover:text-blue-400")} />
+      <span className="text-sm font-semibold tracking-wide">{label}</span>
+      {active && (
+        <motion.div 
+          layoutId="active-pill"
+          className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-blue-400 rounded-l-full"
+        />
+      )}
     </button>
   );
 }
@@ -778,19 +865,28 @@ function InputGroup({
   type?: string;
 }) {
   return (
-    <div>
-      <label className="block text-sm font-semibold text-slate-700 mb-2">{label}</label>
-      <div className="relative group">
+    <div className="group bg-slate-50/50 hover:bg-white p-5 rounded-[2rem] border border-slate-100 hover:border-blue-200 transition-all duration-500 hover:shadow-xl hover:shadow-blue-900/5">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="p-2 bg-blue-50 rounded-xl text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 shadow-sm">
+          <Icon size={18} />
+        </div>
+        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{label}</label>
+      </div>
+      <div className="relative">
         <input 
           type={type}
+          placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full h-12 pl-12 pr-4 rounded-xl border-slate-200 bg-white text-slate-900 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all placeholder:text-slate-300 text-base"
-          placeholder={placeholder}
+          className="w-full bg-transparent text-2xl font-black text-slate-900 placeholder:text-slate-200 focus:outline-none transition-all tracking-tight"
         />
-        <Icon size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#135bec] transition-colors" />
       </div>
-      {subtext && <p className="text-[10px] text-slate-400 mt-1.5 font-medium">{subtext}</p>}
+      {subtext && (
+        <div className="mt-3 flex items-center gap-2">
+          <div className="w-1 h-1 bg-blue-400 rounded-full" />
+          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{subtext}</p>
+        </div>
+      )}
     </div>
   );
 }
