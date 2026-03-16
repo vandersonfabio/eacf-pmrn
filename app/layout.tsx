@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/react";
 import type {Metadata} from 'next';
 import { Public_Sans } from 'next/font/google';
 import './globals.css';
@@ -18,6 +19,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
     <html lang="pt-BR" className={`${publicSans.variable}`}>
       <body className="font-sans antialiased" suppressHydrationWarning>
         {children}
+        <Analytics />
       </body>
     </html>
   );
